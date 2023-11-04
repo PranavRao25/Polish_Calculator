@@ -2,15 +2,9 @@
 #include <iostream>
 #include <limits.h>
 #include <cmath>
+#include <iomanip>
 
 using namespace std;
-
-/* string exp
- * exp : d1 d2 o
- * 1. extract tokens
- * 2. convert into their data types
- * 3. push
- */
 
 vector<string> process(string exp) {
 	vector<string> token;
@@ -29,42 +23,31 @@ vector<string> process(string exp) {
 	return token;
 }
 
-bool isDigit(string s) {
-	for(int i=0;i<s.length();i++) {
-		if(int(s[i])<48 || int(s[i])>57) {
-			return false;
-		}
-	}
-	return true;
-}
-
-int operate(string& s, int a,int b) {
+double operate(string& s, double a,double b) {
 	char ch = s[0];
 	switch(ch) {
-		case '*':	return a*b;
-		case '+':	return a+b;
-		case '-':	return a-b;
+		case '*':	return b*a;
+		case '+':	return b+a;
+		case '-':	return b-a;
 		case '^':	return pow(b,a);
-		case '/':	if(b==0)	return INT_MIN;
-				else 		return (a/b);
+		case '/':	return (b==0)?(INT_MIN):(a/b);
 		default:	break;
 	}
 	return INT_MAX;
 }
 
-int result(string exp) {
+double result(string exp) {
 	vector<string>token = process(exp);
-	stack<int>stack;
+	stack<double>stack;
 	string s;
-	int a,b,val;
+	double a,b,val;
 
-	// 2 5 * => 10 
 	for(int i=0;i<token.size();i++) {
 		s = token[i];
-		if(isDigit(s)) {
-			stack.push(stoi(s));
+		try {
+			stack.push(stod(s));
 		}
-		else {
+		catch (...) {
 			if(s.length()>1) {
 				cout << "Illegal Operation" << endl;
 				return INT_MIN;
@@ -86,17 +69,23 @@ int result(string exp) {
 			stack.push(val);
 		}
 	}
-
+	
 	if(stack.size()==1)	return stack.top();
-	else	return INT_MIN;
+	else {
+		cout << "Invalid Expression" << endl;
+		return INT_MIN;
+	}
 }
 
 int main() {
 	string exp;
-	cout << "Enter expression" << endl;
-	getline(cin,exp);
-	int ans = result(exp);
 
-	if(ans!=INT_MIN)	cout << ans << endl;
-	else	cout << endl;
+	cout << "Enter expression" << endl;	
+	while(getline(cin,exp)) {
+		double ans = result(exp);
+
+		if(ans!=INT_MIN)	cout << setprecision(5) <<ans << endl;
+		else			break;
+		cout << "Enter expression" << endl;	
+	}
 }
